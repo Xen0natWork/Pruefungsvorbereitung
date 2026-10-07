@@ -935,6 +935,13 @@ const BUG_STORAGE_KEY = 'fiaT2TrainerBugs_v1';
 const BUG_CATEGORY_LABEL = { aufgabe: '📝 Aufgaben-Fehler', ui: '🎨 UI/Darstellung', sonstiges: '❓ Sonstiges' };
 const DEFAULT_BUG_REPO_URL = 'https://github.com/xen0natwork/pruefungsvorbereitung';
 
+// Sobald der Cloudflare-Worker-Relay deployed ist (siehe bug-relay-worker.js
+// im Projekt-Root für die Setup-Anleitung), hier die Worker-URL eintragen,
+// z. B. 'https://bug-relay-pruefungsvorbereitung.deinname.workers.dev'.
+// Solange das leer ist, fällt die App auf den manuellen "Issue öffnen"-Weg
+// zurück (erfordert einen eigenen GitHub-Account des Melders).
+const BUG_RELAY_URL = '';
+
 function loadBugData() {
   try {
     const raw = localStorage.getItem(BUG_STORAGE_KEY);
@@ -989,30 +996,75 @@ function captureBugContext() {
 function openBugOverlay() {
   document.getElementById('bugContextBox').textContent = captureBugContext();
   document.getElementById('bugDescriptionInput').value = '';
-  document.getElementById('bugRepoUrlInput').value = bugData.repoUrl;
   renderBugList();
   showOverlay('bugOverlay');
 }
 
-function saveBugReport() {
+async function saveBugReport() {
   const description = document.getElementById('bugDescriptionInput').value.trim();
   if (!description) {
     showToast('⚠ Bitte eine Beschreibung eingeben.', 'info');
     return;
   }
+  const honeypot = document.getElementById('bugWebsiteHoneypot').value;
+  const category = document.getElementById('bugCategorySelect').value;
+  const context = document.getElementById('bugContextBox').textContent;
+
   const report = {
     id: 'bug_' + Date.now(),
-    category: document.getElementById('bugCategorySelect').value,
+    category,
     description,
-    context: document.getElementById('bugContextBox').textContent,
+    context,
     createdAt: new Date().toISOString(),
+    submitted: false,
   };
+
+  const saveBtn = document.getElementById('saveBugBtn');
+  saveBtn.disabled = true;
+  saveBtn.classList.add('sending');
+  saveBtn.textContent = 'Wird gesendet…';
+
+  if (BUG_RELAY_URL) {
+    try {
+      const res = await fetch(BUG_RELAY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category, description, context, website: honeypot }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        report.submitted = true;
+        report.issueUrl = data.issueUrl || null;
+        bugData.reports.unshift(report);
+        saveBugData();
+        document.getElementById('bugDescriptionInput').value = '';
+        renderBugList();
+        showToast('🐛 Danke! Dein Bug-Report wurde übermittelt.', 'milestone');
+        resetSaveBugButton();
+        return;
+      }
+      throw new Error(data.error || 'Unbekannter Relay-Fehler');
+    } catch (e) {
+      console.warn('Bug-Relay nicht erreichbar, Fallback auf manuellen GitHub-Issue-Weg.', e);
+      showToast('⚠ Automatisches Melden fehlgeschlagen — öffne manuellen Weg…', 'info');
+    }
+  }
+
+  // Fallback: lokal merken + manuellen GitHub-Issue-Tab öffnen
+  // (funktioniert nur mit eigenem GitHub-Account).
   bugData.reports.unshift(report);
   saveBugData();
   document.getElementById('bugDescriptionInput').value = '';
   renderBugList();
-  showToast('🐛 Bug-Report gespeichert — GitHub-Issue wird geöffnet…');
+  resetSaveBugButton();
   openGithubIssue(report.id);
+}
+
+function resetSaveBugButton() {
+  const saveBtn = document.getElementById('saveBugBtn');
+  saveBtn.disabled = false;
+  saveBtn.classList.remove('sending');
+  saveBtn.textContent = 'Report senden';
 }
 
 function renderBugList() {
@@ -1035,7 +1087,11 @@ function renderBugList() {
       <div class="bug-item-desc">${escapeHtml(r.description)}</div>
       <div class="bug-item-context">${escapeHtml(r.context)}</div>
       <div class="bug-item-actions">
-        <button class="link-btn" data-github="${r.id}">🔗 Issue öffnen</button>
+        ${r.submitted
+          ? (r.issueUrl
+              ? `<a class="link-btn" href="${escapeHtml(r.issueUrl)}" target="_blank" rel="noopener">✅ Issue #${r.issueUrl.split('/').pop()} ansehen</a>`
+              : `<span class="link-btn" style="cursor:default; color:var(--good);">✅ Übermittelt</span>`)
+          : `<button class="link-btn" data-github="${r.id}">🔗 Issue öffnen</button>`}
         <button class="link-btn" data-delete-bug="${r.id}">🗑 Löschen</button>
       </div>
     </div>
@@ -1243,11 +1299,6 @@ function wireEvents() {
   document.getElementById('saveBugBtn').addEventListener('click', saveBugReport);
   document.getElementById('exportBugsBtn').addEventListener('click', exportBugsAsMarkdown);
   document.getElementById('clearBugsBtn').addEventListener('click', clearBugReports);
-  document.getElementById('saveBugRepoBtn').addEventListener('click', () => {
-    bugData.repoUrl = document.getElementById('bugRepoUrlInput').value.trim();
-    saveBugData();
-    showToast('Repo-URL gespeichert.');
-  });
 
   document.getElementById('searchInput').addEventListener('input', renderTopicsGrid);
   document.getElementById('sortSelect').addEventListener('change', renderTopicsGrid);

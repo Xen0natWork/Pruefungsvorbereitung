@@ -261,13 +261,16 @@
     <label class="bug-field-label" for="bugDescriptionInput">Beschreibung</label>
     <textarea id="bugDescriptionInput" placeholder="Was ist passiert? Was hast du erwartet?"></textarea>
 
+    <!-- Honeypot: unsichtbar für echte Nutzer, fängt simple Spam-Bots ab -->
+    <input type="text" id="bugWebsiteHoneypot" name="website" class="bug-honeypot" tabindex="-1" autocomplete="off">
+
     <div class="btn-row">
-      <button class="btn" id="saveBugBtn">Report speichern</button>
+      <button class="btn" id="saveBugBtn">Report senden</button>
     </div>
 
     <div class="bug-list-section hidden" id="bugListSection">
       <div class="bug-list-header">
-        <h3 class="section-title-sm">Gespeicherte Reports (<span id="bugCount">0</span>)</h3>
+        <h3 class="section-title-sm">Deine Reports in dieser Sitzung (<span id="bugCount">0</span>)</h3>
         <div class="btn-row" style="margin-top:0;">
           <button class="ghost-btn" id="exportBugsBtn">⬇ Alle exportieren (.md)</button>
           <button class="ghost-btn danger-btn" id="clearBugsBtn">🗑 Liste leeren</button>
@@ -277,17 +280,12 @@
     </div>
 
     <div class="bug-github-hint">
-      <strong>GitHub-Issue:</strong> Reports gehen automatisch an
-      <code>github.com/xen0natwork/pruefungsvorbereitung</code> — nach dem Speichern öffnet sich sofort ein
-      vorausgefülltes GitHub-Issue in einem neuen Tab, du musst dort nur noch auf „Submit new issue“ klicken.
+      <strong>So funktioniert's:</strong> Beim Senden wird dein Report automatisch als Issue in
+      <code>github.com/xen0natwork/pruefungsvorbereitung</code> angelegt — ganz ohne eigenen GitHub-Account.
       <br>
       <strong>Wichtig:</strong> Ich (die KI) habe keinen automatischen/dauerhaften Zugriff auf Issues — erst wenn du mir
       in einer neuen Nachricht sagst „schau in die Issues von xen0natwork/pruefungsvorbereitung“ oder einen Link gibst,
       kann ich sie per Fetch-Tool auslesen.
-      <div class="bug-repo-row">
-        <input type="text" id="bugRepoUrlInput" placeholder="https://github.com/nutzer/repo">
-        <button class="ghost-btn" id="saveBugRepoBtn">Anderes Repo verwenden</button>
-      </div>
     </div>
   </div>
 </div>

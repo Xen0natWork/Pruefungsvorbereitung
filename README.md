@@ -80,9 +80,16 @@ python -m http.server 8080
   eingebunden, damit es ohne externe URL/Internetverbindung funktioniert.
 - **Bug-Report**: roter 🐛-Button unten links, in jedem Bildschirm sichtbar.
   Erfasst beim Öffnen automatisch Kontext (aktuelle Aufgabe/Themenbereich,
-  Browser, Fenstergröße, Fortschritt), Reports werden lokal gesammelt
-  (eigener `localStorage`-Key, getrennt vom Lernfortschritt) und können als
-  einzelne `.md`-Datei exportiert werden. Optional: Repo-URL eintragen, dann
-  öffnet „Issue öffnen“ ein vorausgefülltes GitHub-Issue in neuem Tab.
+  Browser, Fenstergröße, Fortschritt). Zwei Modi:
+  - **Mit Relay konfiguriert** (`BUG_RELAY_URL` in `webapp/app.js` gesetzt):
+    Reports landen vollautomatisch als GitHub-Issue — auch für Besucher
+    **ohne eigenen GitHub-Account**. Dafür läuft ein kleiner, kostenloser
+    Cloudflare-Worker-Relay (`bug-relay-worker.js`, Setup-Anleitung direkt
+    in der Datei), der einen fein-skopierten Token (nur „Issues: Read and
+    write“ auf genau dieses Repo) im Hintergrund hält — niemals im
+    Browser-Code sichtbar. Mit Honeypot-Feld gegen simple Spam-Bots.
+  - **Ohne Relay** (Standard, solange `BUG_RELAY_URL` leer ist): Fallback
+    auf einen manuell zu öffnenden, vorausgefüllten GitHub-Issue-Tab —
+    erfordert einen eigenen GitHub-Account des Melders.
 
 Keine Server-Komponente, keine externen Abhängigkeiten – reines HTML/CSS/JS.

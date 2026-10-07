@@ -780,6 +780,15 @@ table.field-table td.incorrect { background: rgba(231,76,60,.18); }
   background: var(--bg-elev-2); color: var(--text); border: 1px solid var(--border);
   border-radius: var(--radius-sm); padding: 9px 12px; font-size: 13px;
 }
+.bug-honeypot {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px; height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.btn.sending { opacity: .6; cursor: wait; }
+
 
 
 
