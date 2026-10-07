@@ -1,0 +1,188 @@
+/* ===========================================================
+   Shop-Datenmodell: Designs (Themes) und Gimmicks
+   Käuflich mit dem Cash aus den Übungsaufgaben.
+   =========================================================== */
+
+const SHOP_THEMES = [
+  {
+    id: 'theme-default',
+    name: 'Midnight Standard',
+    icon: '🌌',
+    price: 0,
+    description: 'Das klassische Dunkel-Violett. Von Anfang an freigeschaltet.',
+    vars: {
+      '--bg': '#0b0f17',
+      '--bg-elev': '#121826',
+      '--bg-elev-2': '#1a2234',
+      '--border': '#263047',
+      '--accent': '#6c5ce7',
+      '--accent-2': '#00d4ff',
+    },
+  },
+  {
+    id: 'theme-ocean',
+    name: 'Ocean Deep',
+    icon: '🌊',
+    price: 300,
+    description: 'Tiefenblaue Flächen mit türkisem Glanz.',
+    vars: {
+      '--bg': '#06121a',
+      '--bg-elev': '#0b1f2c',
+      '--bg-elev-2': '#102c3e',
+      '--border': '#1d4a63',
+      '--accent': '#0ea5e9',
+      '--accent-2': '#22d3ee',
+    },
+  },
+  {
+    id: 'theme-sunset',
+    name: 'Sunset Blaze',
+    icon: '🌅',
+    price: 350,
+    description: 'Warmes Orange-Rot wie ein Sonnenuntergang.',
+    vars: {
+      '--bg': '#1a0e0a',
+      '--bg-elev': '#271410',
+      '--bg-elev-2': '#361c15',
+      '--border': '#5a2e20',
+      '--accent': '#f97316',
+      '--accent-2': '#f43f5e',
+    },
+  },
+  {
+    id: 'theme-matrix',
+    name: 'Matrix Code',
+    icon: '🟩',
+    price: 400,
+    description: 'Grünstichiges Terminal-Feeling für Hacker-Vibes.',
+    vars: {
+      '--bg': '#060f08',
+      '--bg-elev': '#0b1a0f',
+      '--bg-elev-2': '#102815',
+      '--border': '#1f4a2b',
+      '--accent': '#22c55e',
+      '--accent-2': '#4ade80',
+    },
+  },
+  {
+    id: 'theme-rosegold',
+    name: 'Rose Gold',
+    icon: '🌸',
+    price: 450,
+    description: 'Zartes Pink mit warmem Amber-Glanz.',
+    vars: {
+      '--bg': '#160c12',
+      '--bg-elev': '#241219',
+      '--bg-elev-2': '#331a24',
+      '--border': '#55293a',
+      '--accent': '#fb7185',
+      '--accent-2': '#fbbf24',
+    },
+  },
+  {
+    id: 'theme-mono',
+    name: 'High Contrast Mono',
+    icon: '⬛',
+    price: 500,
+    description: 'Reduziertes Graustufen-Design mit starkem Kontrast.',
+    vars: {
+      '--bg': '#000000',
+      '--bg-elev': '#141414',
+      '--bg-elev-2': '#1f1f1f',
+      '--border': '#3a3a3a',
+      '--accent': '#e5e5e5',
+      '--accent-2': '#9ca3af',
+    },
+  },
+];
+
+const SHOP_GIMMICKS = [
+  {
+    id: 'gimmick-cash-diamond',
+    name: 'Diamanten-Cash',
+    icon: '💎',
+    price: 150,
+    description: 'Dein Cash-Symbol wird zum Diamanten.',
+    slot: 'cashIcon',
+    value: '💎',
+  },
+  {
+    id: 'gimmick-cash-dollar',
+    name: 'Dollarbündel',
+    icon: '💵',
+    price: 150,
+    description: 'Dein Cash-Symbol wird zum Geldschein.',
+    slot: 'cashIcon',
+    value: '💵',
+  },
+  {
+    id: 'gimmick-cash-moneymouth',
+    name: 'Money Mouth',
+    icon: '🤑',
+    price: 200,
+    description: 'Dein Cash-Symbol wird zum Money-Mouth-Face.',
+    slot: 'cashIcon',
+    value: '🤑',
+  },
+  {
+    id: 'gimmick-cash-coin',
+    name: 'Goldmünze',
+    icon: '🪙',
+    price: 150,
+    description: 'Dein Cash-Symbol wird zur Goldmünze.',
+    slot: 'cashIcon',
+    value: '🪙',
+  },
+  {
+    id: 'gimmick-confetti-emoji',
+    name: 'Emoji-Konfetti',
+    icon: '🎉',
+    price: 200,
+    description: 'Konfetti-Regen besteht aus Party-Emojis statt bunten Rechtecken.',
+    slot: 'confetti',
+    value: 'emoji',
+  },
+  {
+    id: 'gimmick-confetti-stars',
+    name: 'Sternenregen',
+    icon: '✨',
+    price: 200,
+    description: 'Konfetti-Regen aus funkelnden Sternen.',
+    slot: 'confetti',
+    value: 'stars',
+  },
+  {
+    id: 'gimmick-badge-crown',
+    name: 'Krone statt Logo',
+    icon: '👑',
+    price: 250,
+    description: 'Das Logo oben links wird zur Krone.',
+    slot: 'badge',
+    value: '👑',
+  },
+  {
+    id: 'gimmick-badge-fire',
+    name: 'Feuer-Logo',
+    icon: '🔥',
+    price: 200,
+    description: 'Das Logo oben links wird zur Flamme.',
+    slot: 'badge',
+    value: '🔥',
+  },
+  {
+    id: 'gimmick-toast-rainbow',
+    name: 'Regenbogen-Toasts',
+    icon: '🌈',
+    price: 250,
+    description: 'Benachrichtigungen bekommen einen animierten Regenbogen-Rand.',
+    slot: 'toast',
+    value: 'rainbow',
+  },
+];
+
+const SHOP_ITEMS = [
+  ...SHOP_THEMES.map(t => ({ ...t, category: 'theme' })),
+  ...SHOP_GIMMICKS.map(g => ({ ...g, category: 'gimmick' })),
+];
+
+const SHOP_ITEM_INDEX = Object.fromEntries(SHOP_ITEMS.map(i => [i.id, i]));

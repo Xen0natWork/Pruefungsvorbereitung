@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo A · Freitext + Selbstbewertung</title>
+<link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<div class="bg-fx"></div>
+<div class="wrap">
+  <a class="back-link" href="index.html">← zurück zur Übersicht</a>
+
+  <div class="demo-badge">🅰 Variante A · Freitext + Selbstbewertung</div>
+  <h1>Begriffe erläutern</h1>
+  <p class="subtitle">Prinzip: Generation Effect + Elaborative Interrogation — du formulierst die Antwort selbst in eigenen Worten, bevor du sie mit einer Musterlösung abgleichst.</p>
+
+  <div class="card">
+    <span class="chip">Themenbereich 02 · Projekte planen, steuern und abschließen</span>
+    <span class="chip weight-chip">Gewichtung 12%</span>
+    <span class="chip">Beispielaufgabe: T2 FIA 24W 1 1c</span>
+
+    <div class="question" id="questionText">
+      Ich kann die Begriffe Change Request Management, Meilenstein, Stakeholder und Lessons Learned erläutern.
+    </div>
+
+    <p style="color:var(--text-dim); font-size:13px; margin-bottom:10px;">
+      Schreibe deine Erläuterung in eigenen Worten (2–5 Sätze pro Begriff reichen):
+    </p>
+    <textarea id="answerBox" placeholder="Change Request Management ist...&#10;Ein Meilenstein ist...&#10;Ein Stakeholder ist...&#10;Lessons Learned bedeutet..."></textarea>
+
+    <div class="btn-row">
+      <button class="btn" id="submitBtn">Antwort einreichen & Musterlösung zeigen</button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="resultCard">
+    <h3 style="margin-top:0;">Musterlösung</h3>
+    <div class="model-answer">
+      <p><strong>Change Request Management:</strong> Strukturierter Prozess, mit dem Änderungswünsche während des Projekts erfasst, bzgl. Auswirkungen auf Kosten, Zeit und Qualität bewertet und formal freigegeben oder abgelehnt werden.</p>
+      <p><strong>Meilenstein:</strong> Ein terminierter, besonders bedeutsamer Zwischenpunkt im Projektverlauf (Ereignis ohne Dauer), der dem Fortschrittscontrolling dient.</p>
+      <p><strong>Stakeholder:</strong> Person oder Gruppe mit einem Interesse am Projekt oder Einfluss darauf (z. B. Auftraggeber, Nutzer, Betriebsrat, Management).</p>
+      <p><strong>Lessons Learned:</strong> Am Projektende systematisch dokumentierte Erfahrungen und Erkenntnisse, damit zukünftige Projekte davon profitieren.</p>
+    </div>
+
+    <h3>Selbstcheck — hast du folgendes erwähnt?</h3>
+    <div class="checklist" id="checklist">
+      <label><input type="checkbox" data-point="1"> Change Request Management: Erfassung + Bewertung (Kosten/Zeit/Qualität) + Freigabe-Entscheidung</label>
+      <label><input type="checkbox" data-point="2"> Meilenstein: terminierter Zwischenpunkt / Ereignis ohne eigene Dauer</label>
+      <label><input type="checkbox" data-point="3"> Stakeholder: Person/Gruppe mit Interesse oder Einfluss, mit Beispiel</label>
+      <label><input type="checkbox" data-point="4"> Lessons Learned: Erfahrungen am Projektende dokumentieren für zukünftige Projekte</label>
+    </div>
+
+    <div class="score-banner">
+      <span>Erfüllte Kriterien</span>
+      <span class="big" id="scoreText">0 / 4</span>
+    </div>
+
+    <p style="color:var(--text-dim); font-size:13px; margin-top:16px;">Wie schätzt du dich nach diesem Vergleich ehrlich ein?</p>
+    <div class="btn-row">
+      <button class="btn bad" data-status="offen">😕 Noch nicht</button>
+      <button class="btn mid" data-status="geuebt">🙂 Teilweise</button>
+      <button class="btn good" data-status="beherrscht">💪 Beherrsche ich</button>
+    </div>
+  </div>
+
+  <div class="info-note">
+    ℹ️ Warum das funktioniert: Freier Abruf (Generation Effect) erzeugt tieferes Verständnis als Wiedererkennen von Multiple-Choice-Optionen. Die Selbsteinschätzung anhand einer Kriterienliste trainiert zusätzlich Metakognition.
+  </div>
+</div>
+
+<script>
+document.getElementById('submitBtn').addEventListener('click', () => {
+  document.getElementById('resultCard').classList.remove('hidden');
+  document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+function updateScore() {
+  const checked = document.querySelectorAll('#checklist input:checked').length;
+  document.getElementById('scoreText').textContent = `${checked} / 4`;
+}
+document.querySelectorAll('#checklist input').forEach(cb => cb.addEventListener('change', updateScore));
+
+document.querySelectorAll('[data-status]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = '✓ Status gespeichert: ' + btn.textContent.trim();
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+  });
+});
+</script>
+</body>
+</html>

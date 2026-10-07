@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIA Teil 2 · Prüfungstrainer</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="bg-fx" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-badge" id="brandBadge">T2</div>
+    <div class="brand-text">
+      <h1>FIA Teil 2 · Prüfungstrainer</h1>
+      <span>Fachinformatiker·in Anwendungsentwicklung</span>
+    </div>
+  </div>
+
+  <div class="level-widget" id="levelWidget">
+    <div class="level-ring" id="levelRing">
+      <span id="levelNumber">1</span>
+    </div>
+    <div class="level-info">
+      <div class="level-title" id="levelTitle">Azubi</div>
+      <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+      <div class="xp-text" id="xpText">0 / 0 XP</div>
+    </div>
+  </div>
+
+  <div class="cash-widget" id="cashWidget" title="Cash aus Übungsaufgaben">
+    <span class="cash-icon" id="cashIconDisplay">💰</span>
+    <span>$<span id="cashAmount">0</span></span>
+  </div>
+
+  <a class="ghost-btn netzplan-link-btn" href="netzplan-tool/index.html" target="_blank" rel="noopener" title="Eigenständiges Netzplan-Tool (DIN 69900) in neuem Tab öffnen">📐 Netzplan-Tool</a>
+
+  <button class="ghost-btn shop-btn" id="shopBtn">🛒 Shop</button>
+</header>
+
+<main class="layout">
+
+  <section class="panel overview-panel">
+    <div class="overview-card main-score">
+      <svg viewBox="0 0 120 120" class="ring-svg">
+        <circle cx="60" cy="60" r="52" class="ring-bg"/>
+        <circle cx="60" cy="60" r="52" class="ring-fg" id="overallRing"/>
+      </svg>
+      <div class="ring-label">
+        <strong id="overallPercent">0%</strong>
+        <span>Prüfungsreife</span>
+      </div>
+    </div>
+
+    <div class="overview-card stat-card">
+      <span class="stat-value" id="statMastered">0</span>
+      <span class="stat-label">Beherrscht</span>
+    </div>
+    <div class="overview-card stat-card">
+      <span class="stat-value" id="statPracticed">0</span>
+      <span class="stat-label">In Übung</span>
+    </div>
+    <div class="overview-card stat-card">
+      <span class="stat-value" id="statOpen">0</span>
+      <span class="stat-label">Offen</span>
+    </div>
+
+    <button class="focus-btn" id="startFocus">
+      <span class="focus-icon">🎯</span>
+      Fokus-Modus starten
+    </button>
+  </section>
+
+  <nav class="controls">
+    <label for="searchInput" class="sr-only">Themenbereiche und Lernziele durchsuchen</label>
+    <input type="text" id="searchInput" placeholder="Themenbereiche / Lernziele durchsuchen…">
+    <div class="sort-group">
+      <label for="sortSelect">Sortieren:</label>
+      <select id="sortSelect">
+        <option value="number" selected>Themenbereich (Nr.)</option>
+        <option value="weight">Gewichtung (hoch → niedrig)</option>
+        <option value="progress">Fortschritt (niedrig → hoch)</option>
+        <option value="name">Themenbereich (A–Z)</option>
+      </select>
+    </div>
+    <button class="ghost-btn" id="milestonesBtn">🏆 Meilensteine</button>
+    <button class="ghost-btn" id="dataBtn">⚙ Daten</button>
+  </nav>
+
+  <section class="topics-grid" id="topicsGrid"></section>
+
+</main>
+
+<!-- Focus mode overlay -->
+<div class="overlay hidden" id="focusOverlay" role="dialog" aria-modal="true" aria-labelledby="focusText">
+  <div class="focus-card">
+    <button class="close-btn" id="closeFocus" aria-label="Schließen">✕</button>
+    <div class="focus-progress"><div class="focus-progress-fill" id="focusProgressFill"></div></div>
+    <div class="focus-meta">
+      <span class="chip" id="focusTopicName">Themenbereich</span>
+      <span class="chip weight-chip" id="focusWeight">Gewichtung 0%</span>
+    </div>
+    <h2 class="focus-text" id="focusText">Kann-Satz…</h2>
+
+    <p class="focus-question">Wie sicher fühlst du dich bei diesem Lernziel?</p>
+    <div class="focus-actions">
+      <button class="rate-btn rate-open" data-status="offen">😕 Noch nicht</button>
+      <button class="rate-btn rate-practice" data-status="geuebt">🙂 Teilweise</button>
+      <button class="rate-btn rate-mastered" data-status="beherrscht">💪 Beherrsche ich</button>
+    </div>
+
+    <div class="focus-skip">
+      <button class="link-btn" id="skipFocus">Überspringen →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Session complete overlay -->
+<div class="overlay hidden" id="sessionDoneOverlay">
+  <div class="focus-card session-done">
+    <h2>🎉 Session abgeschlossen!</h2>
+    <p id="sessionSummary"></p>
+    <button class="focus-btn" id="closeSessionDone">Weiter zum Dashboard</button>
+  </div>
+</div>
+
+<!-- Milestones overlay -->
+<div class="overlay hidden" id="milestonesOverlay" role="dialog" aria-modal="true" aria-labelledby="milestonesHeading">
+  <div class="focus-card milestones-card">
+    <button class="close-btn" id="closeMilestones" aria-label="Schließen">✕</button>
+    <h2 id="milestonesHeading">🏆 Meilensteine</h2>
+    <div class="milestones-list" id="milestonesList"></div>
+  </div>
+</div>
+
+<!-- Data management overlay -->
+<div class="overlay hidden" id="dataOverlay" role="dialog" aria-modal="true" aria-labelledby="dataHeading">
+  <div class="focus-card data-card">
+    <button class="close-btn" id="closeData" aria-label="Schließen">✕</button>
+    <h2 id="dataHeading">⚙ Fortschritt verwalten</h2>
+    <p class="data-hint">Dein Fortschritt wird automatisch lokal in diesem Browser gespeichert (localStorage).</p>
+    <div class="data-actions">
+      <button class="ghost-btn" id="exportBtn">⬇ Fortschritt exportieren (JSON)</button>
+      <label class="ghost-btn file-label">⬆ Fortschritt importieren
+        <input type="file" id="importInput" accept="application/json" hidden>
+      </label>
+      <button class="ghost-btn danger-btn" id="resetBtn">🗑 Fortschritt zurücksetzen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Exercise overlay -->
+<div class="overlay hidden" id="exerciseOverlay" role="dialog" aria-modal="true" aria-labelledby="exerciseTitle">
+  <div class="focus-card exercise-overlay-card">
+    <button class="close-btn" id="closeExercise" aria-label="Schließen">✕</button>
+    <div class="focus-meta" id="exerciseMeta"></div>
+    <h2 class="focus-text" id="exerciseTitle"></h2>
+    <div class="exercise-intro" id="exerciseIntro"></div>
+
+    <button class="link-btn hidden" id="toggleExerciseHints">Hinweise anzeigen ▾</button>
+    <div class="extra-body hidden" id="exerciseHintsBody"></div>
+
+    <div id="exerciseBody"></div>
+
+    <div class="btn-row">
+      <button class="btn" id="checkExerciseBtn">Prüfen</button>
+      <button class="ghost-btn hidden" id="resetExerciseBtn">Zurücksetzen</button>
+    </div>
+
+    <div class="score-banner hidden" id="exerciseScoreBanner">
+      <span>Ergebnis</span>
+      <span class="big" id="exerciseScoreText">0%</span>
+    </div>
+
+    <div class="model-answer hidden" id="exerciseExplanation"></div>
+
+    <div class="hidden" id="exerciseRateBody">
+      <p class="focus-question">Wie sicher fühlst du dich bei dieser Aufgabe?</p>
+      <div class="focus-actions">
+        <button class="rate-btn exercise-rate-btn rate-open" data-status="offen">😕 Noch nicht</button>
+        <button class="rate-btn exercise-rate-btn rate-practice" data-status="geuebt">🙂 Teilweise</button>
+        <button class="rate-btn exercise-rate-btn rate-mastered" data-status="beherrscht">💪 Beherrsche ich</button>
+      </div>
+    </div>
+
+    <div class="hidden" id="exerciseCashResult"></div>
+  </div>
+</div>
+
+<!-- Topic detail overlay -->
+<div class="overlay hidden" id="topicOverlay" role="dialog" aria-modal="true" aria-labelledby="topicDetailName">
+  <div class="focus-card topic-card">
+    <button class="close-btn" id="closeTopic" aria-label="Schließen">✕</button>
+    <div class="topic-header">
+      <h2 id="topicDetailName"></h2>
+      <span class="chip weight-chip" id="topicDetailWeight"></span>
+    </div>
+    <div class="topic-progress-bar"><div class="topic-progress-fill" id="topicDetailProgress"></div></div>
+    <div class="checkpoint-list" id="checkpointList"></div>
+
+    <div class="topic-exercises-section hidden" id="topicExercisesSection">
+      <div class="topic-exercises-header">
+        <h3 class="section-title-sm">📝 Übungsaufgaben zu diesem Themenbereich</h3>
+        <div class="exercise-chip-filters" id="topicExerciseFilters">
+          <button class="chip-filter active" data-filter="all">Alle</button>
+          <button class="chip-filter" data-filter="due">🔁 Fällig</button>
+          <button class="chip-filter" data-filter="new">Neu</button>
+          <button class="chip-filter" data-filter="mastered">💪 Beherrscht</button>
+        </div>
+      </div>
+      <p class="section-sub">Konstruktive Aufgaben mit Auto-Check — kein Multiple Choice. Richtig gelöst + ehrlich eingeschätzt = 💰 Cash.</p>
+      <div class="exercises-grid" id="topicExercisesGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+<div class="confetti-layer" id="confettiLayer"></div>
+
+<!-- Shop overlay -->
+<div class="overlay hidden" id="shopOverlay" role="dialog" aria-modal="true" aria-labelledby="shopHeading">
+  <div class="focus-card shop-card">
+    <button class="close-btn" id="closeShop" aria-label="Schließen">✕</button>
+    <h2 id="shopHeading">🛒 Shop</h2>
+    <p class="data-hint">Kaufe Designs und Gimmicks mit deinem 💰 Cash aus den Übungsaufgaben.</p>
+    <div class="shop-cash-display">Verfügbar: <strong id="shopCashAmount">$0</strong></div>
+
+    <div class="shop-tabs" id="shopTabs">
+      <button class="chip-filter active" data-category="theme">🎨 Designs</button>
+      <button class="chip-filter" data-category="gimmick">✨ Gimmicks</button>
+    </div>
+
+    <div class="shop-grid" id="shopGrid"></div>
+  </div>
+</div>
+
+<!-- Floating bug report button -->
+<button class="bug-fab" id="bugFab" title="Bug melden" aria-label="Bug melden">🐛</button>
+
+<!-- Bug report overlay -->
+<div class="overlay hidden" id="bugOverlay" role="dialog" aria-modal="true" aria-labelledby="bugHeading">
+  <div class="focus-card bug-card">
+    <button class="close-btn" id="closeBug" aria-label="Schließen">✕</button>
+    <h2 id="bugHeading">🐛 Bug melden</h2>
+    <p class="data-hint">
+      Beschreibe kurz, was nicht funktioniert hat. Kontext (Aufgabe/Themenbereich, Browser, Zeitpunkt) wird automatisch erfasst.
+    </p>
+
+    <div class="bug-context-box" id="bugContextBox"></div>
+
+    <label class="bug-field-label" for="bugCategorySelect">Kategorie</label>
+    <select id="bugCategorySelect" class="bug-select">
+      <option value="aufgabe">📝 Aufgaben-Fehler (falsche Musterlösung, falscher Auto-Check, Tippfehler…)</option>
+      <option value="ui">🎨 UI/Darstellung (Layout, Button reagiert nicht, Darstellung kaputt…)</option>
+      <option value="sonstiges">❓ Sonstiges</option>
+    </select>
+
+    <label class="bug-field-label" for="bugDescriptionInput">Beschreibung</label>
+    <textarea id="bugDescriptionInput" placeholder="Was ist passiert? Was hast du erwartet?"></textarea>
+
+    <div class="btn-row">
+      <button class="btn" id="saveBugBtn">Report speichern</button>
+    </div>
+
+    <div class="bug-list-section hidden" id="bugListSection">
+      <div class="bug-list-header">
+        <h3 class="section-title-sm">Gespeicherte Reports (<span id="bugCount">0</span>)</h3>
+        <div class="btn-row" style="margin-top:0;">
+          <button class="ghost-btn" id="exportBugsBtn">⬇ Alle exportieren (.md)</button>
+          <button class="ghost-btn danger-btn" id="clearBugsBtn">🗑 Liste leeren</button>
+        </div>
+      </div>
+      <div class="bug-list" id="bugList"></div>
+    </div>
+
+    <div class="bug-github-hint">
+      <strong>GitHub-Issue:</strong> Reports gehen automatisch an
+      <code>github.com/xen0natwork/pruefungsvorbereitung</code> — nach dem Speichern öffnet sich sofort ein
+      vorausgefülltes GitHub-Issue in einem neuen Tab, du musst dort nur noch auf „Submit new issue“ klicken.
+      <br>
+      <strong>Wichtig:</strong> Ich (die KI) habe keinen automatischen/dauerhaften Zugriff auf Issues — erst wenn du mir
+      in einer neuen Nachricht sagst „schau in die Issues von xen0natwork/pruefungsvorbereitung“ oder einen Link gibst,
+      kann ich sie per Fetch-Tool auslesen.
+      <div class="bug-repo-row">
+        <input type="text" id="bugRepoUrlInput" placeholder="https://github.com/nutzer/repo">
+        <button class="ghost-btn" id="saveBugRepoBtn">Anderes Repo verwenden</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="exercises-data.js"></script>
+<script src="shop-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

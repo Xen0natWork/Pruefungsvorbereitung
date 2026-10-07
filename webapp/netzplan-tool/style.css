@@ -1,0 +1,207 @@
+:root {
+  --accent: #1d5fa8;
+  --accent-dark: #103f73;
+  --critical: #c0392b;
+  --bg: #f3f5f8;
+  --panel-bg: #ffffff;
+  --border: #d4dae2;
+  --text: #222b36;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.app-header {
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+  color: #fff;
+  padding: 10px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.app-header h1 { margin: 0; font-size: 18px; }
+.app-header .subtitle { font-size: 12px; font-weight: normal; opacity: 0.85; display: block; }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 6px; }
+.toolbar button, .form-actions button, #btnCloseHelp {
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12.5px;
+}
+.toolbar button:hover { background: rgba(255,255,255,0.28); }
+
+.error-box {
+  background: #fdecea;
+  color: #611a15;
+  border: 1px solid #f5c6c0;
+  padding: 10px 16px;
+  margin: 0;
+  white-space: pre-wrap;
+}
+.error-box.hidden { display: none; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 10px;
+  padding: 10px;
+  align-items: start;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: calc(100vh - 70px);
+  overflow-y: auto;
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+.panel h2 { margin: 0 0 10px; font-size: 14px; color: var(--accent-dark); }
+.panel.grow { flex: 1; }
+
+#activityForm label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #46525e;
+}
+#activityForm input[type=text],
+#activityForm input[type=number] {
+  display: block;
+  width: 100%;
+  margin-top: 3px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 13px;
+}
+.req { color: var(--critical); }
+
+.pred-list {
+  max-height: 160px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px;
+  margin-bottom: 10px;
+}
+.pred-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  font-size: 12.5px;
+}
+.pred-row label { margin: 0; font-weight: normal; flex: 1; cursor: pointer; }
+.pred-row input[type=number] {
+  width: 60px;
+  padding: 2px 4px;
+  font-size: 12px;
+}
+.pred-empty { color: #889; font-size: 12.5px; font-style: italic; }
+
+.form-actions { display: flex; gap: 8px; margin-top: 4px; }
+.form-actions button {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.form-actions button.secondary {
+  background: #eceff3;
+  color: #333;
+  border-color: var(--border);
+}
+
+.project-info div { margin-bottom: 4px; }
+.project-info .critical-paths { margin-top: 6px; font-size: 12.5px; }
+.project-info .critical-paths code { background: #fdecea; color: var(--critical); padding: 2px 5px; border-radius: 3px; }
+
+.table-wrap { max-height: 320px; overflow: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th, td { padding: 4px 5px; border-bottom: 1px solid var(--border); text-align: center; white-space: nowrap; }
+th { background: #eef2f7; position: sticky; top: 0; }
+td:nth-child(2) { text-align: left; }
+tr.critical td { color: var(--critical); font-weight: 600; }
+td button { cursor: pointer; border: none; background: none; font-size: 13px; padding: 2px 4px; }
+td button.edit { color: var(--accent); }
+td button.del { color: var(--critical); }
+
+.diagram-wrap {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: auto;
+  min-height: calc(100vh - 90px);
+  position: relative;
+}
+#diagram { display: block; }
+
+.node-box rect.outer { fill: #fff; stroke: #2c3e50; stroke-width: 1.3; }
+.node-box.critical rect.outer { stroke: var(--critical); stroke-width: 2.2; }
+.node-box rect.divider { fill: #f3f6fa; stroke: #2c3e50; stroke-width: 0.8; }
+.node-box text { font-family: "Segoe UI", Arial, sans-serif; pointer-events: none; user-select: none; }
+.node-box .label-small { font-size: 8px; fill: #7a8591; }
+.node-box .value { font-size: 12px; font-weight: 600; fill: #1b2733; }
+.node-box.critical .value { fill: var(--critical); }
+.node-box .code { font-size: 13px; font-weight: 700; fill: #1b2733; }
+.node-box.critical .code { fill: var(--critical); }
+.node-box .name { font-size: 10px; fill: #46525e; }
+.node-box { cursor: grab; }
+.node-box:active { cursor: grabbing; }
+
+.edge-path { fill: none; stroke: #7f8c9b; stroke-width: 1.4; }
+.edge-path.critical { stroke: var(--critical); stroke-width: 2.4; }
+.edge-label { font-size: 9px; fill: #556; }
+.edge-label.critical { fill: var(--critical); font-weight: 600; }
+
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center; z-index: 50;
+}
+.overlay.hidden { display: none; }
+.overlay-content {
+  background: #fff; max-width: 640px; width: 92%; max-height: 85vh; overflow-y: auto;
+  border-radius: 8px; padding: 24px; position: relative;
+}
+.overlay-content h2 { margin-top: 0; color: var(--accent-dark); }
+.overlay-content ul { padding-left: 20px; }
+.overlay-content li { margin-bottom: 8px; }
+.close-btn {
+  position: absolute; top: 10px; right: 12px; background: none; border: none;
+  font-size: 22px; cursor: pointer; color: #556; line-height: 1;
+}
+.box-schema {
+  background: #f3f6fa; border: 1px solid var(--border); padding: 10px; border-radius: 4px;
+  font-size: 12px; overflow-x: auto;
+}
+.hint { font-size: 12.5px; color: #556; font-style: italic; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { max-height: none; }
+}
+
+@media print {
+  .app-header .toolbar, .error-box, .sidebar .panel:not(.grow), #helpOverlay { display: none; }
+  .layout { grid-template-columns: 1fr; }
+  .diagram-wrap { border: none; min-height: 0; }
+}

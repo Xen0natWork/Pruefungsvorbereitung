@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo B · Netzplan Auto-Check</title>
+<link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<div class="bg-fx"></div>
+<div class="wrap">
+  <a class="back-link" href="index.html">← zurück zur Übersicht</a>
+
+  <div class="demo-badge">🅱 Variante B · Strukturiertes Template mit Auto-Check</div>
+  <h1>Netzplan berechnen</h1>
+  <p class="subtitle">Prinzip: Desirable Difficulty + objektives Feedback — du berechnest echte Zahlen, das Tool prüft sie automatisch gegen den Vorwärts-/Rückwärtstermin.</p>
+
+  <div class="card">
+    <span class="chip">Themenbereich 02 · Projekte planen, steuern und abschließen</span>
+    <span class="chip weight-chip">Gewichtung 17% / 12%</span>
+    <span class="chip">Beispielaufgabe: T2 FIA 26S 1 1c / 1e</span>
+
+    <div class="question">
+      2.4 Ich kann einen Netzplan mit FAZ, FEZ, SAZ, SEZ, GP und FP erweitern und den kritischen Pfad angeben.<br>
+      2.5 Ich kann den Unterschied zwischen freiem Puffer und Gesamtpuffer beschreiben.
+    </div>
+
+    <p style="color:var(--text-dim); font-size:13px;">
+      Projekt „Online-Terminbuchung“ — Vorgänge mit Dauer (Tage) und Vorgängern:
+    </p>
+    <table class="cpm" style="margin-bottom:18px;">
+      <tr><th>Vorgang</th><th>Bezeichnung</th><th>Dauer</th><th>Vorgänger</th></tr>
+      <tr><td>A</td><td class="name-col">Anforderungsanalyse</td><td>5</td><td>—</td></tr>
+      <tr><td>B</td><td class="name-col">Datenbankdesign</td><td>3</td><td>A</td></tr>
+      <tr><td>C</td><td class="name-col">UI-Entwurf</td><td>4</td><td>A</td></tr>
+      <tr><td>D</td><td class="name-col">Backend-Implementierung</td><td>2</td><td>B, C</td></tr>
+      <tr><td>E</td><td class="name-col">Frontend-Implementierung</td><td>6</td><td>B</td></tr>
+      <tr><td>F</td><td class="name-col">Integrationstest</td><td>3</td><td>D, E</td></tr>
+    </table>
+
+    <button class="link-btn" id="toggleHints">Formel-Hinweise anzeigen ▾</button>
+    <div class="model-answer hidden" id="hintsBody">
+      <p><strong>FAZ</strong> = größte FEZ aller Vorgänger (Start = 0)</p>
+      <p><strong>FEZ</strong> = FAZ + Dauer</p>
+      <p><strong>SEZ</strong> = kleinste SAZ aller Nachfolger (Projektende = letztes FEZ)</p>
+      <p><strong>SAZ</strong> = SEZ − Dauer</p>
+      <p><strong>GP (Gesamtpuffer)</strong> = SAZ − FAZ</p>
+      <p><strong>FP (freier Puffer)</strong> = kleinste FAZ aller Nachfolger − FEZ</p>
+    </div>
+
+    <p style="color:var(--text-dim); font-size:13px; margin-top:16px;">
+      Trage für jeden Vorgang FAZ, FEZ, SAZ, SEZ, GP und FP ein und markiere, ob der Vorgang auf dem kritischen Pfad liegt:
+    </p>
+
+    <table class="cpm" id="cpmTable">
+      <tr>
+        <th>Vorgang</th><th>FAZ</th><th>FEZ</th><th>SAZ</th><th>SEZ</th><th>GP</th><th>FP</th><th>Kritisch?</th>
+      </tr>
+    </table>
+
+    <div class="btn-row">
+      <button class="btn" id="checkBtn">Prüfen</button>
+      <button class="btn secondary" id="resetBtn">Zurücksetzen</button>
+    </div>
+
+    <div class="score-banner hidden" id="scoreBanner">
+      <span>Korrekte Felder</span>
+      <span class="big" id="scoreText">0 / 0</span>
+    </div>
+  </div>
+
+  <div class="card hidden" id="explainCard">
+    <h3 style="margin-top:0;">Erklärung: GP vs. FP</h3>
+    <p id="explainText" style="color:var(--text-dim); line-height:1.6;"></p>
+  </div>
+
+  <div class="info-note">
+    ℹ️ Warum das funktioniert: Statt nur zu erkennen, musst du den kritischen Pfad selbst konstruieren (Generation Effect) — mit sofortigem, objektivem Zahlen-Feedback statt vagem Selbsteindruck.
+  </div>
+</div>
+
+<script>
+const activities = [
+  { id: 'A', name: 'Anforderungsanalyse', duration: 5, preds: [] },
+  { id: 'B', name: 'Datenbankdesign', duration: 3, preds: ['A'] },
+  { id: 'C', name: 'UI-Entwurf', duration: 4, preds: ['A'] },
+  { id: 'D', name: 'Backend-Implementierung', duration: 2, preds: ['B', 'C'] },
+  { id: 'E', name: 'Frontend-Implementierung', duration: 6, preds: ['B'] },
+  { id: 'F', name: 'Integrationstest', duration: 3, preds: ['D', 'E'] },
+];
+
+const byId = Object.fromEntries(activities.map(a => [a.id, a]));
+activities.forEach(a => a.succs = []);
+activities.forEach(a => a.preds.forEach(p => byId[p].succs.push(a.id)));
+
+activities.forEach(a => {
+  a.FAZ = a.preds.length ? Math.max(...a.preds.map(p => byId[p].FEZ)) : 0;
+  a.FEZ = a.FAZ + a.duration;
+});
+const projectEnd = Math.max(...activities.map(a => a.FEZ));
+[...activities].reverse().forEach(a => {
+  a.SEZ = a.succs.length ? Math.min(...a.succs.map(s => byId[s].SAZ)) : projectEnd;
+  a.SAZ = a.SEZ - a.duration;
+});
+activities.forEach(a => {
+  a.GP = a.SAZ - a.FAZ;
+  a.FP = a.succs.length ? Math.min(...a.succs.map(s => byId[s].FAZ)) - a.FEZ : a.GP;
+  a.critical = a.GP === 0;
+});
+
+const FIELDS = ['FAZ', 'FEZ', 'SAZ', 'SEZ', 'GP', 'FP'];
+const table = document.getElementById('cpmTable');
+activities.forEach(a => {
+  const row = document.createElement('tr');
+  row.innerHTML = `<td class="name-col">${a.id} – ${a.name} (${a.duration}d)</td>` +
+    FIELDS.map(f => `<td><input type="number" data-id="${a.id}" data-field="${f}"></td>`).join('') +
+    `<td><input type="checkbox" data-id="${a.id}" data-field="critical"></td>`;
+  table.appendChild(row);
+});
+
+document.getElementById('toggleHints').addEventListener('click', () => {
+  const body = document.getElementById('hintsBody');
+  const btn = document.getElementById('toggleHints');
+  body.classList.toggle('hidden');
+  btn.textContent = body.classList.contains('hidden') ? 'Formel-Hinweise anzeigen ▾' : 'Formel-Hinweise verbergen ▴';
+});
+
+document.getElementById('checkBtn').addEventListener('click', () => {
+  let correct = 0, total = 0;
+  activities.forEach(a => {
+    FIELDS.forEach(f => {
+      const input = table.querySelector(`input[data-id="${a.id}"][data-field="${f}"]`);
+      total++;
+      const val = parseInt(input.value, 10);
+      const ok = val === a[f];
+      input.closest('td').classList.toggle('correct', ok);
+      input.closest('td').classList.toggle('incorrect', !ok);
+      if (ok) correct++;
+    });
+    const critBox = table.querySelector(`input[data-id="${a.id}"][data-field="critical"]`);
+    total++;
+    const ok = critBox.checked === a.critical;
+    critBox.closest('td').classList.toggle('correct', ok);
+    critBox.closest('td').classList.toggle('incorrect', !ok);
+    if (ok) correct++;
+  });
+
+  document.getElementById('scoreBanner').classList.remove('hidden');
+  document.getElementById('scoreText').textContent = `${correct} / ${total}`;
+
+  const c = byId['C'];
+  document.getElementById('explainText').innerHTML =
+    `Vorgang <strong>C (UI-Entwurf)</strong> hat einen Gesamtpuffer (GP) von <strong>${c.GP}</strong> Tagen — ` +
+    `so lange darf sich C insgesamt verschieben, ohne das Projektende zu gefährden. Der freie Puffer (FP) beträgt jedoch nur <strong>${c.FP}</strong> ` +
+    `Tage — denn verschiebt sich C, verschiebt sich sofort auch der früheste Starttermin des direkten Nachfolgers D. ` +
+    `Genau das ist der Unterschied: GP bezieht sich auf das <em>gesamte Projektende</em>, FP nur auf den <em>direkt folgenden Vorgang</em>.`;
+  document.getElementById('explainCard').classList.remove('hidden');
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  table.querySelectorAll('input[type="number"]').forEach(i => i.value = '');
+  table.querySelectorAll('input[type="checkbox"]').forEach(i => i.checked = false);
+  table.querySelectorAll('td').forEach(td => td.classList.remove('correct', 'incorrect'));
+  document.getElementById('scoreBanner').classList.add('hidden');
+  document.getElementById('explainCard').classList.add('hidden');
+});
+</script>
+</body>
+</html>

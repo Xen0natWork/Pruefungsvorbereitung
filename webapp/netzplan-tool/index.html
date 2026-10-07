@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Netzplan-Tool (DIN 69900)</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header class="app-header">
+  <h1>Netzplan-Tool <span class="subtitle">Vorgangsknotennetz nach DIN 69900</span></h1>
+  <div class="toolbar">
+    <button id="btnExample" title="Beispielprojekt laden">Beispiel laden</button>
+    <button id="btnNew" title="Alles löschen und neu beginnen">Neues Projekt</button>
+    <button id="btnAutoLayout" title="Vorgänge automatisch anordnen">Auto-Layout</button>
+    <button id="btnExportJSON" title="Projekt als JSON-Datei speichern">Export JSON</button>
+    <button id="btnImportJSON" title="Projekt aus JSON-Datei laden">Import JSON</button>
+    <input type="file" id="fileImport" accept="application/json" hidden />
+    <button id="btnExportSVG" title="Netzplan als SVG-Datei exportieren">Export SVG</button>
+    <button id="btnPrint" title="Drucken / Als PDF speichern">Drucken</button>
+    <button id="btnHelp" title="Regeln &amp; Legende anzeigen">Regeln &amp; Hilfe</button>
+  </div>
+</header>
+
+<div id="errorBox" class="error-box hidden"></div>
+
+<main class="layout">
+  <section class="sidebar">
+    <div class="panel">
+      <h2 id="formTitle">Neuen Vorgang anlegen</h2>
+      <form id="activityForm">
+        <input type="hidden" id="editingId" value="" />
+        <label>
+          Code <span class="req">*</span>
+          <input type="text" id="inpCode" maxlength="8" placeholder="z. B. A" required />
+        </label>
+        <label>
+          Bezeichnung
+          <input type="text" id="inpName" maxlength="60" placeholder="z. B. Fundament gießen" />
+        </label>
+        <label>
+          Dauer <span class="req">*</span>
+          <input type="number" id="inpDuration" min="0" step="0.5" value="1" required />
+        </label>
+        <label>Vorgänger (mit Mindestabstand)</label>
+        <div id="predList" class="pred-list"></div>
+        <div class="form-actions">
+          <button type="submit" id="btnSave">Speichern</button>
+          <button type="button" id="btnCancelEdit" class="secondary">Abbrechen</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>Projektinfo</h2>
+      <div id="projectInfo" class="project-info"></div>
+    </div>
+
+    <div class="panel grow">
+      <h2>Vorgangsliste</h2>
+      <div class="table-wrap">
+        <table id="activityTable">
+          <thead>
+            <tr>
+              <th>Code</th><th>Name</th><th>D</th>
+              <th title="Früheste Anfangszeit">FAZ</th><th title="Früheste Endzeit">FEZ</th>
+              <th title="Späteste Anfangszeit">SAZ</th><th title="Späteste Endzeit">SEZ</th>
+              <th title="Gesamtpuffer">GP</th><th title="Freier Puffer">FP</th>
+              <th>Vorgänger</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="activityTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="diagram-wrap" id="diagramWrapper">
+    <svg id="diagram" xmlns="http://www.w3.org/2000/svg"></svg>
+  </section>
+</main>
+
+<div id="helpOverlay" class="overlay hidden">
+  <div class="overlay-content">
+    <button class="close-btn" id="btnCloseHelp">&times;</button>
+    <h2>Regeln des Netzplans (DIN 69900 – Vorgangsknotennetz)</h2>
+    <p>Dieses Tool bildet einen <strong>Vorgangsknotennetzplan (AON – Activity on Node)</strong> ab.
+       Jeder Vorgang wird als Knoten mit 7 Feldern dargestellt:</p>
+    <pre class="box-schema">
+┌─────────┬─────────┬─────────┐
+│  FAZ    │  Dauer  │  FEZ    │   FAZ = Früheste Anfangszeit, FEZ = Früheste Endzeit
+├─────────┴─────────┴─────────┤
+│      Code / Bezeichnung     │
+├─────────┬─────────┬─────────┤
+│  SAZ    │   GP    │  SEZ    │   SAZ = Späteste Anfangszeit, SEZ = Späteste Endzeit, GP = Gesamtpuffer
+└─────────┴─────────┴─────────┘</pre>
+    <h3>Berechnungsregeln</h3>
+    <ul>
+      <li><strong>Vorwärtsrechnung:</strong> FAZ = max(FEZ aller Vorgänger + Abstand); FEZ = FAZ + Dauer. Vorgänge ohne Vorgänger starten bei 0.</li>
+      <li><strong>Rückwärtsrechnung:</strong> SEZ = min(SAZ aller Nachfolger − Abstand); SAZ = SEZ − Dauer. Vorgänge ohne Nachfolger enden bei der Projektdauer.</li>
+      <li><strong>Gesamtpuffer (GP)</strong> = SAZ − FAZ = SEZ − FEZ. Zeit, um die ein Vorgang verschoben werden kann, ohne die Projektdauer zu verändern.</li>
+      <li><strong>Freier Puffer (FP)</strong> = min(FAZ der Nachfolger − Abstand) − FEZ. Zeit, um die ein Vorgang verschoben werden kann, ohne nachfolgende Vorgänge zu verschieben.</li>
+      <li><strong>Kritischer Pfad:</strong> die durchgehende Kette von Vorgängen mit GP = 0, vom Projektstart bis zum Projektende. Verzögert sich ein kritischer Vorgang, verzögert sich das gesamte Projekt. Kritische Vorgänge/Pfeile werden rot dargestellt.</li>
+      <li><strong>Anordnungsbeziehung:</strong> unterstützt wird die Normalfolge (Ende-Anfang) mit optionalem Mindestabstand (Zeitabstand) zwischen Vorgänger und Nachfolger.</li>
+      <li>Ein gültiger Netzplan darf <strong>keine Kreise (Zyklen)</strong> enthalten – das Tool prüft dies automatisch.</li>
+    </ul>
+    <p class="hint">Tipp: Knoten im Diagramm können per Drag &amp; Drop frei positioniert werden. "Auto-Layout" ordnet alle Vorgänge wieder nach Ebenen (Vorgängertiefe) an.</p>
+  </div>
+</div>
+
+<script src="netzplan-core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
