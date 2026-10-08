@@ -940,7 +940,7 @@ const DEFAULT_BUG_REPO_URL = 'https://github.com/xen0natwork/pruefungsvorbereitu
 // z. B. 'https://bug-relay-pruefungsvorbereitung.deinname.workers.dev'.
 // Solange das leer ist, fällt die App auf den manuellen "Issue öffnen"-Weg
 // zurück (erfordert einen eigenen GitHub-Account des Melders).
-const BUG_RELAY_URL = '';
+const BUG_RELAY_URL = 'https://bug-worker.fabian-kalb.workers.dev/';
 
 function loadBugData() {
   try {
