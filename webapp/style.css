@@ -819,6 +819,19 @@ table.field-table td.incorrect { background: rgba(231,76,60,.18); }
 }
 .btn.sending { opacity: .6; cursor: wait; }
 
+/* ---------- Site footer ---------- */
+.site-footer {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  flex-wrap: wrap;
+  padding: 24px 20px;
+  color: var(--text-dim);
+  font-size: 12px;
+  text-align: center;
+}
+.site-footer a { color: var(--accent-2); text-decoration: none; }
+.site-footer a:hover { text-decoration: underline; }
+
+
 
 
 
