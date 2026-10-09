@@ -36,7 +36,19 @@
     <span>$<span id="cashAmount">0</span></span>
   </div>
 
-  <a class="ghost-btn netzplan-link-btn" href="netzplan-tool/index.html" target="_blank" rel="noopener" title="Eigenständiges Netzplan-Tool (DIN 69900) in neuem Tab öffnen">📐 Netzplan-Tool</a>
+  <div class="tools-menu" id="toolsMenu">
+    <button class="ghost-btn tools-btn" id="toolsBtn" aria-haspopup="true" aria-expanded="false">🧰 Tools ▾</button>
+    <div class="tools-dropdown hidden" id="toolsDropdown" role="menu">
+      <a class="tools-dropdown-item" href="netzplan-tool/index.html" target="_blank" rel="noopener" role="menuitem">
+        <span class="tools-dropdown-icon">📐</span>
+        <span><strong>Netzplan-Tool</strong><small>Vorgangspfeil-Netzplan nach DIN 69900</small></span>
+      </a>
+      <a class="tools-dropdown-item" href="doku-checkliste.html" target="_blank" rel="noopener" role="menuitem">
+        <span class="tools-dropdown-icon">📋</span>
+        <span><strong>Doku-Checkliste</strong><small>IHK-Projektdokumentation abhaken</small></span>
+      </a>
+    </div>
+  </div>
 
   <button class="ghost-btn shop-btn" id="shopBtn">🛒 Shop</button>
 </header>

@@ -124,7 +124,8 @@ const EXERCISES = [
     topicId: 22,
     checkpointNrs: ['22.1', '22.2'],
     baseReward: 170,
-    intro: 'Szenario „Fahrradverleih“: Kunden mieten Fahrräder (Vermietung mit Datum). Jedes Fahrrad steht an genau einer Station. ' +
+    intro: 'Szenario „Fahrradverleih“: Kunden mieten Fahrräder (Vermietung mit Datum). Jedes Fahrrad steht an genau einer Station, ' +
+      'aber an einer Station können mehrere Fahrräder stehen. ' +
       'Ein Fahrrad kann mehreren Kategorien zugeordnet sein (z. B. „E-Bike“, „Lastenrad“), eine Kategorie gilt für viele Fahrräder.<br><br>' +
       'Bestimme für jede Beziehung die Kardinalität, ob eine Zwischentabelle nötig ist, und wo der Fremdschlüssel steht.',
     hints: [

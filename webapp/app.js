@@ -1261,6 +1261,28 @@ function wireEvents() {
     });
   });
 
+  const toolsBtn = document.getElementById('toolsBtn');
+  const toolsDropdown = document.getElementById('toolsDropdown');
+  if (toolsBtn && toolsDropdown) {
+    toolsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toolsDropdown.classList.toggle('hidden');
+      toolsBtn.setAttribute('aria-expanded', String(!toolsDropdown.classList.contains('hidden')));
+    });
+    document.addEventListener('click', (e) => {
+      if (!toolsDropdown.classList.contains('hidden') && !toolsDropdown.contains(e.target) && e.target !== toolsBtn) {
+        toolsDropdown.classList.add('hidden');
+        toolsBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        toolsDropdown.classList.add('hidden');
+        toolsBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
   document.getElementById('shopBtn').addEventListener('click', () => {
     shopActiveCategory = 'theme';
     document.querySelectorAll('#shopTabs .chip-filter').forEach(b => b.classList.toggle('active', b.dataset.category === 'theme'));
